@@ -1,4 +1,4 @@
-# ANRO - Sterowanie Robotem Dobot Magician i Turtlesim
+# ANRO - Labolatoria -  Sterowanie Robotem Dobot Magician
 
 ## Autorzy
 * **Mikołaj Wróbel**
@@ -9,15 +9,15 @@ Projekt zawiera pakiety dla systemu ROS 2 (dystrybucja **Jazzy**) służące do 
 
 ## Struktura pakietów
 
-### 1. dobot_magician
-Pakiet odpowiedzialny za fundamenty techniczne robota:
+### 1. dobot_magician - folder zawierający pracę z 3. i 4. Labolatoriów
+Symulacja robota:
 * **Modelowanie**: Wykorzystanie plików Xacro do generowania struktury URDF robota, uwzględniającej wymiary fizyczne z pliku `params.yaml`.
 * **Kinematyka Prosta (`forwardkin`)**: Przelicza kąty złączy na pozycję (x, y, z) efektora końcowego, publikując dane na temat `/end_effector_pose`.
 * **Kinematyka Odwrotna (`inversekin`)**: Oblicza wymagane kąty złączy na podstawie kliknięcia punktu w przestrzeni (`/clicked_point`), biorąc pod uwagę limity fizyczne robota.
 * **Konfiguracja**: Plik `params.yaml` definiuje wymiary ramion (rear arm: 0.135m, fore arm: 0.147m) oraz limity ruchu dla poszczególnych jointów.
 
 ### 2. lab2
-Pakiet zawierający skrypty operacyjne i sterujące:
+Skrypty operacyjne i sterujące robotem:
 * **`dobot_tower`**: Skrypt automatyzujący budowę wieży z klocków o zadanej wysokości, wykorzystujący akcje `PTP_action` oraz serwis chwytaka.
 * **`dobot_move`**: Podstawowa sekwencja pick-and-place.
 * **`turtle_controller`**: Zaawansowany kontroler dla Turtlesim, realizujący sekwencję obrotów i tworzenia nowych żółwi (`spawn`).
