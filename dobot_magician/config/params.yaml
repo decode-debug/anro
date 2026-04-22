@@ -1,0 +1,36 @@
+dimensions:
+  total_base_height: 0.138
+  box_z: 0.06
+  box_x: 0.1
+  box_y: 0.1
+  rear_arm: 0.135
+  fore_arm: 0.147
+  servo_l: 0.04
+  servo_x: 0.04
+  servo_y: 0.08
+  gripper_x: 0.02
+  gripper_y: 0.02
+  gripper_z: 0.04
+  actuator_x: 0.02
+  actuator_y: 0.02
+  actuator_z: 0.02
+  label_x: 0.02
+  label_y: 0.02
+  label_z: 0.02
+  width: 0.04
+
+joint_limits:
+  joint1:
+    min: -1.5708
+    max: 1.5708
+  joint2:
+    min: 0
+    max: 1.4835
+  joint3:
+    min: -0.1745
+    max: 1.5708
+  joint4:
+    min: 0
+    max: 1.4835
+  velocity: 5.585
+  effort: 10

@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dobot_magician">
+
+
+<xacro:arg name="config_file" default="$(find dobot_magician)/config/params.yaml"/>
+<xacro:property name="p" value="${xacro.load_yaml('$(arg config_file)')}"/>
+
+<xacro:property name="dim" value="${p['dimensions']}"/>
+<xacro:property name="lim" value="${p['joint_limits']}"/>
+
+<xacro:property name="base_height" value="${dim['total_base_height'] - dim['box_z']}"/>
+
+<material name="blue">
+    <color rgba="0 0 0.8 1"/>
+</material>
+
+<material name="white">
+    <color rgba="1 1 1 1"/>
+</material>
+
+<link name="base_link">
+    <visual>
+        <origin xyz="0 0 ${dim['box_z']/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['box_x']} ${dim['box_y']} ${dim['box_z']}"/>
+        </geometry>
+        <material name="blue"/>
+    </visual>
+</link>
+
+<link name="label">
+    <visual>
+        <origin xyz="0 0 ${dim['label_z']/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['label_x']} ${dim['label_y']} ${dim['label_z']}"/>
+        </geometry>
+        <material name="white"/>
+    </visual>
+</link>
+
+<link name="base_arm">
+    <visual>
+        <origin xyz="0 0 ${base_height/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['width']} ${dim['width']} ${base_height}"/>
+        </geometry>
+        <material name="blue"/>
+    </visual>
+</link>
+
+<link name="rear_arm">
+    <visual>
+        <origin xyz="0 0 ${dim['rear_arm']/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['width']} ${dim['width']} ${dim['rear_arm']}"/>
+        </geometry>
+        <material name="white"/>
+    </visual>
+</link>
+
+<link name="fore_arm">
+    <visual>
+        <origin xyz="0 0 ${dim['fore_arm']/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['width']} ${dim['width']} ${dim['fore_arm']}"/>
+        </geometry>
+        <material name="blue"/>
+    </visual>
+</link>
+
+<link name="gripper_servo">
+    <visual>
+        <origin xyz="0 -0.003 ${dim['servo_l']/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['servo_x']} ${dim['servo_y']} ${dim['servo_l']}"/>
+        </geometry>
+        <material name="white"/>
+    </visual>
+</link>
+
+<link name="actuator">
+    <visual>
+        <origin xyz="${dim['actuator_x']} 0 ${dim['actuator_z'] / 2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['actuator_x']} ${dim['actuator_y']} ${dim['actuator_z']}"/>
+        </geometry>
+        <material name="white"/>
+    </visual>
+</link>
+
+<link name="gripper">
+    <visual>
+        <origin xyz="0 0 ${dim['gripper_z']/2}" rpy="0 0 0"/>
+        <geometry>
+            <box size="${dim['gripper_x']} ${dim['gripper_y']} ${dim['gripper_z']}"/>
+        </geometry>
+        <material name="blue"/>
+    </visual>
+</link>
+
+<joint name="box_to_base" type="revolute">
+    <parent link="base_link"/>
+    <child link="base_arm"/>
+    <origin xyz="0 0 ${dim['box_z']}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="${lim['joint1']['min']}" upper="${lim['joint1']['max']}" effort="${lim['effort']}" velocity="${lim['velocity']}"/>
+</joint>
+
+<joint name="base_to_reararm" type="revolute">
+    <parent link="base_arm"/>
+    <child link="rear_arm"/>
+    <origin xyz="0 0 ${base_height}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${lim['joint2']['min']}" upper="${lim['joint2']['max']}" effort="${lim['effort']}" velocity="${lim['velocity']}"/>
+</joint>
+
+<joint name="reararm_to_forearm" type="revolute">
+    <parent link="rear_arm"/>
+    <child link="fore_arm"/>
+    <origin xyz="0 0 ${dim['rear_arm']}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="${lim['joint3']['min']}" upper="${lim['joint3']['max']}" effort="${lim['effort']}" velocity="${lim['velocity']}"/>
+</joint>
+
+<joint name="forearm_to_servo" type="continuous">
+    <parent link="fore_arm"/>
+    <child link="gripper_servo"/>
+    <origin xyz="0 0 ${dim['fore_arm']}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <!-- <limit lower="${lim['joint4']['min']}" upper="${lim['joint4']['max']}" effort="${lim['effort']}" velocity="${lim['velocity']}"/> -->
+</joint>
+
+<joint name="servo_to_gripper" type="continuous">
+    <parent link="gripper_servo"/>
+    <child link="gripper"/>
+    <origin xyz="0 0 ${dim['servo_l']}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+</joint>
+
+<joint name="gripper_to_actuator" type="fixed">
+    <parent link="gripper"/>
+    <child link="actuator"/>
+    <origin xyz="0 ${dim['gripper_y']/2 + dim['actuator_y']/2} ${dim['actuator_z'] / 2}" rpy="0 0 0"/>
+</joint>
+
+<joint name="base_to_label" type="fixed">
+    <parent link="base_link"/>
+    <child link="label"/>
+    <origin xyz="${dim['box_x']/2} 0 0" rpy="0 0 0"/>
+</joint>
+
+
+</robot>
