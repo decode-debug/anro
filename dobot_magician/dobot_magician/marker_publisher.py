@@ -13,7 +13,7 @@ from visualization_msgs.msg import Marker, MarkerArray
 
 class MarkerPublisher(Node):
     def __init__(self):
-        super().__init__('marker_publisher')
+        super().__init__("marker_publisher")
 
         scene_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST,
@@ -22,18 +22,20 @@ class MarkerPublisher(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
 
-        self.marker_pub = self.create_publisher(MarkerArray, '/scene_markers', 10)
-        self.create_subscription(
-            PoseStamped, '/camera_link/cube_pose', self.cube_pose_callback, scene_qos
+        self.marker_pub = self.create_publisher(
+            MarkerArray, "/scene_markers", scene_qos
         )
         self.create_subscription(
-            PoseStamped, '/camera_link/paper_pose', self.paper_pose_callback, scene_qos
+            PoseStamped, "/camera_link/cube_pose", self.cube_pose_callback, scene_qos
         )
         self.create_subscription(
-            PoseStamped, '/cube_pose_base', self.base_cube_pose_callback, 10
+            PoseStamped, "/camera_link/paper_pose", self.paper_pose_callback, scene_qos
         )
         self.create_subscription(
-            Bool, '/cube_attached', self.cube_attached_callback, 10
+            PoseStamped, "/cube_pose_base", self.base_cube_pose_callback, 10
+        )
+        self.create_subscription(
+            Bool, "/cube_attached", self.cube_attached_callback, 10
         )
 
         self.tf_buffer = Buffer()
@@ -77,17 +79,17 @@ class MarkerPublisher(Node):
     def try_transform_to_base(self, pose: PoseStamped) -> PoseStamped | None:
         try:
             transform = self.tf_buffer.lookup_transform(
-                'base_link',
+                "base_link",
                 pose.header.frame_id,
                 Time(),
                 timeout=Duration(seconds=0.2),
             )
         except TransformException as exc:
-            self.get_logger().debug(f'Waiting for transform {
-                    pose.header.frame_id} -> base_link: {exc}')
+            self.get_logger().debug(f"Waiting for transform {
+                    pose.header.frame_id} -> base_link: {exc}")
             return None
 
-        return transform_pose(pose, transform, target_frame='base_link')
+        return transform_pose(pose, transform, target_frame="base_link")
 
     def publish_markers(self):
         self.try_transform_pending_poses()
@@ -100,24 +102,24 @@ class MarkerPublisher(Node):
     def build_cube_marker(self) -> Marker:
         marker = Marker()
         marker.header.stamp = self.get_clock().now().to_msg()
-        marker.ns = 'scene'
+        marker.ns = "scene"
         marker.id = 0
         marker.type = Marker.CUBE
         marker.action = Marker.ADD
         marker.scale.x = 0.02
         marker.scale.y = 0.02
         marker.scale.z = 0.02
-        marker.color.r = 0.98
-        marker.color.g = 0.49
-        marker.color.b = 0.09
+        marker.color.r = 1.0
+        marker.color.g = 0.15
+        marker.color.b = 0.1
         marker.color.a = 1.0
 
         if self.cube_attached or self.base_cube_pose is None:
-            marker.header.frame_id = 'gripper'
+            marker.header.frame_id = "gripper"
             marker.frame_locked = True
             marker.pose.position.x = 0.0
             marker.pose.position.y = 0.0
-            marker.pose.position.z = 0.025
+            marker.pose.position.z = 0.08
             marker.pose.orientation.w = 1.0
             return marker
 
@@ -128,23 +130,23 @@ class MarkerPublisher(Node):
     def build_paper_marker(self) -> Marker:
         marker = Marker()
         marker.header.stamp = self.get_clock().now().to_msg()
-        marker.ns = 'scene'
+        marker.ns = "scene"
         marker.id = 1
         marker.type = Marker.CUBE
         marker.scale.x = 0.05
         marker.scale.y = 0.10
         marker.scale.z = 0.001
-        marker.color.r = 0.93
-        marker.color.g = 0.93
-        marker.color.b = 0.90
+        marker.color.r = 0.15
+        marker.color.g = 0.95
+        marker.color.b = 0.2
         marker.color.a = 1.0
 
         if self.base_paper_pose is None:
-            marker.header.frame_id = 'base_link'
+            marker.header.frame_id = "base_link"
             marker.action = Marker.ADD
-            marker.pose.position.x = 0.18
-            marker.pose.position.y = 0.0
-            marker.pose.position.z = 0.0005
+            marker.pose.position.x = 0.20
+            marker.pose.position.y = -0.16
+            marker.pose.position.z = 0.003
             marker.pose.orientation.w = 1.0
             return marker
 
@@ -162,5 +164,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
