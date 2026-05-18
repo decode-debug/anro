@@ -28,6 +28,14 @@ Visualization Manager:
       Value: /robot_description
     Name: RobotModel
     Value: true
+  - Class: rviz_default_plugins/MarkerArray
+    Enabled: true
+    Marker Topic:
+      Value: /scene_markers
+    Name: Scene Markers
+    Namespaces:
+      scene: true
+    Value: true
   - Class: rviz_default_plugins/TF
     Name: TF
     Value: false

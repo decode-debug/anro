@@ -45,6 +45,17 @@ ros2 launch dobot_magician display.launch.py
 ```
 Możesz sterować robotem poprzez publikowanie punktów docelowych lub zmianę stanów złączy.
 
+### Laboratorium 6 - kamera i chwytanie
+Podgląd modelu z kamerą Intel RealSense D435i, kartką i kostką w RViz2 wraz z `joint_state_publisher_gui`:
+```bash
+ros2 launch dobot_magician display.launch.py
+```
+
+Pełny scenariusz losowania obiektów w `camera_link`, transformacji do `base_link` i sekwencji pick-and-place:
+```bash
+ros2 launch dobot_magician lab6.launch.py
+```
+
 ### Budowanie wieży (Dobot)
 Uruchomienie automatycznej sekwencji układania wieży:
 ```bash

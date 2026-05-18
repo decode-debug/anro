@@ -7,6 +7,21 @@
   <maintainer email="kacper.maciejko.12@gmail.com">kacpermaciejko</maintainer>
   <license>Apache-2.0</license>
 
+  <depend>ament_index_python</depend>
+  <depend>geometry_msgs</depend>
+  <depend>joint_state_publisher_gui</depend>
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+  <depend>rclpy</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>rviz2</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>visualization_msgs</depend>
+
+  <exec_depend>xacro</exec_depend>
+
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>
