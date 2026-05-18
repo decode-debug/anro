@@ -22,9 +22,7 @@ class MarkerPublisher(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
 
-        self.marker_pub = self.create_publisher(
-            MarkerArray, "/scene_markers", scene_qos
-        )
+        self.marker_pub = self.create_publisher(MarkerArray, "/visualization_marker_array", 10)
         self.create_subscription(
             PoseStamped, "/camera_link/cube_pose", self.cube_pose_callback, scene_qos
         )

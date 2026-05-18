@@ -31,7 +31,7 @@ Visualization Manager:
   - Class: rviz_default_plugins/MarkerArray
     Enabled: true
     Marker Topic:
-      Value: /scene_markers
+      Value: /visualization_marker_array
     Name: Scene Markers
     Namespaces:
       scene: true
