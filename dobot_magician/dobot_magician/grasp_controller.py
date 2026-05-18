@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
-import math
 from functools import partial
 
-import rclpy
+from dobot_magician.geometry_helpers import (
+    pose_from_xyz_yaw,
+    transform_pose,
+    yaw_from_quaternion,
+)
 from geometry_msgs.msg import PoseStamped
+import rclpy
 from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
 from rclpy.time import Time
 from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformException, TransformListener
-
-from dobot_magician.geometry_helpers import pose_from_xyz_yaw, transform_pose, yaw_from_quaternion
 
 
 class GraspController(Node):
@@ -25,12 +27,18 @@ class GraspController(Node):
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
 
-        self.create_subscription(PoseStamped, '/camera_link/cube_pose', self.cube_pose_callback, scene_qos)
-        self.create_subscription(PoseStamped, '/camera_link/paper_pose', self.paper_pose_callback, scene_qos)
+        self.create_subscription(
+            PoseStamped, '/camera_link/cube_pose', self.cube_pose_callback, scene_qos
+        )
+        self.create_subscription(
+            PoseStamped, '/camera_link/paper_pose', self.paper_pose_callback, scene_qos
+        )
 
         self.ik_target_pub = self.create_publisher(PoseStamped, '/ik_target', 10)
         self.cube_attached_pub = self.create_publisher(Bool, '/cube_attached', 10)
-        self.cube_pose_base_pub = self.create_publisher(PoseStamped, '/cube_pose_base', 10)
+        self.cube_pose_base_pub = self.create_publisher(
+            PoseStamped, '/cube_pose_base', 10
+        )
 
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -60,8 +68,12 @@ class GraspController(Node):
     def tick(self):
         self.try_transform_pending_poses()
 
-        if (not self.sequence_started and not self.sequence_finished and
-                self.base_cube_pose is not None and self.base_paper_pose is not None):
+        if (
+            not self.sequence_started
+            and not self.sequence_finished
+            and self.base_cube_pose is not None
+            and self.base_paper_pose is not None
+        ):
             self.plan_sequence()
 
         if not self.sequence:
@@ -103,7 +115,8 @@ class GraspController(Node):
                 timeout=Duration(seconds=0.2),
             )
         except TransformException as exc:
-            self.get_logger().debug(f'Waiting for transform {pose.header.frame_id} -> base_link: {exc}')
+            self.get_logger().debug(f'Waiting for transform {
+                pose.header.frame_id} -> base_link: {exc}')
             return None
 
         return transform_pose(pose, transform, target_frame='base_link')
@@ -119,7 +132,9 @@ class GraspController(Node):
         place_z = placed_cube_center_z + 0.01
         preplace_z = place_z + 0.05
 
-        pre_grasp_pose = self.make_target_pose(cube.x, cube.y, cube_pregrasp_z, paper_yaw)
+        pre_grasp_pose = self.make_target_pose(
+            cube.x, cube.y, cube_pregrasp_z, paper_yaw
+        )
         grasp_pose = self.make_target_pose(cube.x, cube.y, cube_grasp_z, paper_yaw)
         lift_pose = self.make_target_pose(cube.x, cube.y, cube_pregrasp_z, paper_yaw)
         pre_place_pose = self.make_target_pose(paper.x, paper.y, preplace_z, paper_yaw)
@@ -161,8 +176,8 @@ class GraspController(Node):
         msg.pose = pose.pose
         self.ik_target_pub.publish(msg)
         self.get_logger().info(
-            'Published IK target: '
-            f'x={msg.pose.position.x:.3f}, y={msg.pose.position.y:.3f}, z={msg.pose.position.z:.3f}'
+            'Published IK target: ' f'x={msg.pose.position.x:.3f}, y={
+                msg.pose.position.y:.3f}, z={msg.pose.position.z:.3f}'
         )
 
     def publish_cube_attached(self, attached: bool):

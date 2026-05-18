@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 import random
 
-import rclpy
+from dobot_magician.geometry_helpers import pose_from_xyz_yaw
 from geometry_msgs.msg import PoseStamped
+import rclpy
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, HistoryPolicy, QoSProfile, ReliabilityPolicy
-
-from dobot_magician.geometry_helpers import pose_from_xyz_yaw
 
 
 class RandomScenePublisher(Node):
@@ -19,8 +18,12 @@ class RandomScenePublisher(Node):
             reliability=ReliabilityPolicy.RELIABLE,
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
-        self.cube_pub = self.create_publisher(PoseStamped, '/camera_link/cube_pose', qos)
-        self.paper_pub = self.create_publisher(PoseStamped, '/camera_link/paper_pose', qos)
+        self.cube_pub = self.create_publisher(
+            PoseStamped, '/camera_link/cube_pose', qos
+        )
+        self.paper_pub = self.create_publisher(
+            PoseStamped, '/camera_link/paper_pose', qos
+        )
 
         self.random = random.Random()
         self.publish_timer = self.create_timer(1.0, self.publish_scene)

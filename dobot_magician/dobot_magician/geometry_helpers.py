@@ -20,7 +20,10 @@ def yaw_from_quaternion(quaternion: Quaternion) -> float:
     return math.atan2(siny_cosp, cosy_cosp)
 
 
-def quaternion_multiply(left: Quaternion, right: Quaternion) -> tuple[float, float, float, float]:
+def quaternion_multiply(
+    left: Quaternion,
+    right: Quaternion,
+) -> tuple[float, float, float, float]:
     x1, y1, z1, w1 = left.x, left.y, left.z, left.w
     x2, y2, z2, w2 = right.x, right.y, right.z, right.w
     return (
@@ -31,7 +34,10 @@ def quaternion_multiply(left: Quaternion, right: Quaternion) -> tuple[float, flo
     )
 
 
-def rotate_vector(quaternion: Quaternion, vector: tuple[float, float, float]) -> tuple[float, float, float]:
+def rotate_vector(
+    quaternion: Quaternion,
+    vector: tuple[float, float, float],
+) -> tuple[float, float, float]:
     vector_quaternion = Quaternion(x=vector[0], y=vector[1], z=vector[2], w=0.0)
     inverse = Quaternion(
         x=-quaternion.x,
@@ -50,7 +56,14 @@ def rotate_vector(quaternion: Quaternion, vector: tuple[float, float, float]) ->
     return rotated[0], rotated[1], rotated[2]
 
 
-def pose_from_xyz_yaw(frame_id: str, x: float, y: float, z: float, yaw: float, stamp=None) -> PoseStamped:
+def pose_from_xyz_yaw(
+    frame_id: str,
+    x: float,
+    y: float,
+    z: float,
+    yaw: float,
+    stamp=None,
+) -> PoseStamped:
     pose = PoseStamped()
     pose.header.frame_id = frame_id
     if stamp is not None:
@@ -75,14 +88,22 @@ def transform_pose(
             pose_stamped.pose.position.z,
         ),
     )
-    orientation = quaternion_multiply(transform.transform.rotation, pose_stamped.pose.orientation)
+    orientation = quaternion_multiply(
+        transform.transform.rotation, pose_stamped.pose.orientation
+    )
 
     transformed = PoseStamped()
     transformed.header.frame_id = target_frame or transform.header.frame_id
     transformed.header.stamp = transform.header.stamp
-    transformed.pose.position.x = rotated_position[0] + transform.transform.translation.x
-    transformed.pose.position.y = rotated_position[1] + transform.transform.translation.y
-    transformed.pose.position.z = rotated_position[2] + transform.transform.translation.z
+    transformed.pose.position.x = (
+        rotated_position[0] + transform.transform.translation.x
+    )
+    transformed.pose.position.y = (
+        rotated_position[1] + transform.transform.translation.y
+    )
+    transformed.pose.position.z = (
+        rotated_position[2] + transform.transform.translation.z
+    )
     transformed.pose.orientation.x = orientation[0]
     transformed.pose.orientation.y = orientation[1]
     transformed.pose.orientation.z = orientation[2]

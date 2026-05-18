@@ -2,18 +2,17 @@
 from collections import deque
 import math
 import os
-import yaml
 
-import rclpy
 from ament_index_python.packages import get_package_share_directory
+from dobot_magician.geometry_helpers import normalize_angle, yaw_from_quaternion
 from geometry_msgs.msg import PointStamped, PoseStamped
+import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-
-from dobot_magician.geometry_helpers import normalize_angle, yaw_from_quaternion
+import yaml
 
 _cfg_path = os.path.join(
-    get_package_share_directory("dobot_magician"), "config", "params.yaml"
+    get_package_share_directory('dobot_magician'), 'config', 'params.yaml'
 )
 with open(_cfg_path) as _f:
     _cfg = yaml.safe_load(_f)
@@ -21,33 +20,33 @@ with open(_cfg_path) as _f:
 
 class InverseKin(Node):
     def __init__(self):
-        super().__init__("inverse_kin")
+        super().__init__('inverse_kin')
 
-        self.dim = _cfg["dimensions"]
+        self.dim = _cfg['dimensions']
 
-        self.base_z = self.dim["box_z"]
-        self.base_turn_z = self.dim["total_base_height"] - self.dim["box_z"]
-        self.lower_arm_len = self.dim["rear_arm"]
-        self.upper_arm_len = self.dim["fore_arm"]
-        self.servo_l = self.dim["servo_l"]
-        self.gripper_z = self.dim["gripper_z"]
+        self.base_z = self.dim['box_z']
+        self.base_turn_z = self.dim['total_base_height'] - self.dim['box_z']
+        self.lower_arm_len = self.dim['rear_arm']
+        self.upper_arm_len = self.dim['fore_arm']
+        self.servo_l = self.dim['servo_l']
+        self.gripper_z = self.dim['gripper_z']
 
-        self.lim = _cfg["joint_limits"]
-        self.base_min = self.lim["joint1"]["min"]
-        self.base_max = self.lim["joint1"]["max"]
+        self.lim = _cfg['joint_limits']
+        self.base_min = self.lim['joint1']['min']
+        self.base_max = self.lim['joint1']['max']
 
-        self.L1_min = self.lim["joint2"]["min"]
-        self.L1_max = self.lim["joint2"]["max"]
+        self.L1_min = self.lim['joint2']['min']
+        self.L1_max = self.lim['joint2']['max']
 
-        self.L2_min = self.lim["joint3"]["min"]
-        self.L2_max = self.lim["joint3"]["max"]
+        self.L2_min = self.lim['joint3']['min']
+        self.L2_max = self.lim['joint3']['max']
 
         self.joint_names = [
-            "box_to_base",
-            "base_to_reararm",
-            "reararm_to_forearm",
-            "forearm_to_servo",
-            "servo_to_gripper",
+            'box_to_base',
+            'base_to_reararm',
+            'reararm_to_forearm',
+            'forearm_to_servo',
+            'servo_to_gripper',
         ]
         self.current_joint_positions = {name: 0.0 for name in self.joint_names}
         self.motion_hz = 30.0
@@ -56,23 +55,23 @@ class InverseKin(Node):
 
         self.sub = self.create_subscription(
             PointStamped,
-            "/clicked_point",
+            '/clicked_point',
             self.point_callback,
             10,
         )
         self.pose_sub = self.create_subscription(
             PoseStamped,
-            "/ik_target",
+            '/ik_target',
             self.pose_callback,
             10,
         )
         self.joint_state_sub = self.create_subscription(
             JointState,
-            "/joint_states",
+            '/joint_states',
             self.joint_state_callback,
             10,
         )
-        self.pub = self.create_publisher(JointState, "/joint_states", 10)
+        self.pub = self.create_publisher(JointState, '/joint_states', 10)
         self.motion_timer = self.create_timer(
             1.0 / self.motion_hz, self.publish_motion_step
         )
@@ -80,7 +79,8 @@ class InverseKin(Node):
             [self.current_joint_positions[name] for name in self.joint_names]
         )
         self.get_logger().info(
-            "InverseKin node started – /clicked_point or /ik_target → interpolated /joint_states"
+            'InverseKin node started – /clicked_point or /ik_target '
+            '→ interpolated /joint_states'
         )
 
     def joint_state_callback(self, msg: JointState):
@@ -97,10 +97,9 @@ class InverseKin(Node):
         )
 
     def pose_callback(self, msg: PoseStamped):
-        if msg.header.frame_id not in ("", "base_link"):
-            self.get_logger().warn(
-                f"Ignoring IK target in unsupported frame: {msg.header.frame_id}"
-            )
+        if msg.header.frame_id not in ('', 'base_link'):
+            self.get_logger().warn(f'Ignoring IK target in unsupported frame: {
+                    msg.header.frame_id}')
             return
 
         tool_yaw = yaw_from_quaternion(msg.pose.orientation)
@@ -129,9 +128,8 @@ class InverseKin(Node):
             ]
             self.motion_queue.append(interpolated)
 
-        self.get_logger().info(
-            f"Queued IK motion to x={x:.3f}, y={y:.3f}, z={z_world:.3f}, yaw={tool_yaw:.3f}"
-        )
+        self.get_logger().info(f'Queued IK motion to x={x:.3f}, y={y:.3f}, z={
+                z_world:.3f}, yaw={tool_yaw:.3f}')
 
     def solve_ik(self, x: float, y: float, z_world: float, tool_yaw: float):
         z = z_world - (self.base_z + self.base_turn_z) + (self.servo_l + self.gripper_z)
@@ -142,7 +140,7 @@ class InverseKin(Node):
         L2 = self.upper_arm_len
 
         if D > (L1 + L2) or D < abs(L1 - L2):
-            self.get_logger().warn(f"Punkt poza zasięgiem! D={D:.3f}, Max={L1+L2}")
+            self.get_logger().warn(f'Punkt poza zasięgiem! D={D:.3f}, Max={L1+L2}')
             return None
 
         q1 = math.atan2(y, x)
@@ -162,7 +160,7 @@ class InverseKin(Node):
         )
 
         if not limits:
-            self.get_logger().warn("Punkt nie miesci sie w limitach zlacz")
+            self.get_logger().warn('Punkt nie miesci sie w limitach zlacz')
             return None
 
         return [
@@ -183,7 +181,7 @@ class InverseKin(Node):
     def publish_joint_state(self, positions):
         new_msg = JointState()
         new_msg.header.stamp = self.get_clock().now().to_msg()
-        new_msg.header.frame_id = ""
+        new_msg.header.frame_id = ''
         new_msg.name = self.joint_names
         new_msg.position = positions
         self.pub.publish(new_msg)
@@ -201,5 +199,5 @@ def main():
     rclpy.shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
