@@ -1,0 +1,14 @@
+# ROS2/colcon generated folders
+build/
+install/
+log/
+lab2/log/
+
+# Python cache/artifacts
+**/__pycache__/
+*.py[cod]
+*.pyo
+
+# VS Code local workspace files
+.vscode/
+**/.vscode/browse.vc.db*
