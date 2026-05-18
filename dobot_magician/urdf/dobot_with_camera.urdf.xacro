@@ -174,7 +174,7 @@
 <joint name="servo_to_camera" type="fixed">
     <parent link="gripper_servo"/>
     <child link="camera_link"/>
-    <origin xyz="0.0 -0.0555 0.02" rpy="0 0 0"/>
+    <origin xyz="-0.0355 0.0 0.02" rpy="0 0 1.5708"/>
 </joint>
 
 
